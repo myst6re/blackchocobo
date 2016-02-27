@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -30,7 +30,7 @@ class ItemSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ItemSelector(QWidget *parent = 0);
+	explicit ItemSelector(qreal Scale=1,QWidget *parent = 0);
     int id();// current id
     int combo_item_width();//width of the item box.
     int combo_type_width();//width of the type box.
@@ -53,11 +53,12 @@ private:
     void init_connections();
     void init_data();
     int type_offset(int type);
-    FF7Item Items;
+    FF7Item *Items;
     QComboBox *combo_type;
     QComboBox *combo_item;
     QSpinBox  *sb_qty;
     QPushButton *btn_remove;
     quint16 current_item;
+	qreal scale;
 };
 #endif // ITEMSELECTOR_H

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2013 Chris Rizzitello <sithlord48@gmail.com>                //
+//    copyright 2013 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of Black Chocobo.                                   //
 //                                                                          //
@@ -15,15 +15,15 @@
 /****************************************************************************/
 #include "achievementdialog.h"
 
-achievementDialog::achievementDialog(QWidget *parent,QString FileName) :
+achievementDialog::achievementDialog(qreal Scale,QString FileName,QWidget *parent) :
     QDialog(parent)
 {   
     fileName=FileName;
     this->setWindowTitle(tr("Achievement Editor"));
-    achEditor = new AchievementEditor;
+	achEditor = new AchievementEditor(Scale);
     achEditor->openFile(fileName);
-    btnSave = new QPushButton(QIcon(QPixmap("://icon/save")),tr("  &Save"));
-    btnNo = new QPushButton(QIcon(QPixmap("://icon/quit")),tr("  &Cancel"));
+	btnSave = new QPushButton(QIcon::fromTheme("document-save",QIcon(":/icon/save")),tr("  &Save"));
+	btnNo = new QPushButton(QIcon::fromTheme("window-close",QIcon(":/icon/quit")),tr("  &Cancel"));
     QHBoxLayout * btnLayout = new QHBoxLayout;
     btnLayout->setContentsMargins(0,0,0,0);
     btnLayout->setSpacing(2);
@@ -36,7 +36,7 @@ achievementDialog::achievementDialog(QWidget *parent,QString FileName) :
     layout->addLayout(btnLayout);
     this->setLayout(layout);
     this->adjustSize();
-    this->setFixedSize(this->size());
+	//this->setFixedSize(this->size());
     connect(btnSave,SIGNAL(clicked()),this,SLOT(accept()));
     connect(btnNo,SIGNAL(clicked()),this,SLOT(close()));
 }

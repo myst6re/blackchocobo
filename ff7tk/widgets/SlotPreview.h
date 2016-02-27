@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -37,7 +37,7 @@ class SlotPreview : public QLabel
 public:
 	/** \enum MODE */
 	enum MODE{MODE_EMPTY,/**< \brief Empty Slot*/ MODE_PSXGAME, /**< \brief PSX Game or linked block */ MODE_FF7SAVE /**< \brief FF7 Save in slot*/ };
-	SlotPreview(int index=0,QWidget *parent = 0);
+	SlotPreview(int index=0,qreal Scale=1,QWidget *parent = 0);
 	int index(void);
 	void setParty(QPixmap p1,QPixmap p2,QPixmap p3);
 	void setParty(QString p1_style,QString p2_style,QString p3_style);
@@ -85,6 +85,7 @@ private:
 	QVBoxLayout * Final;
 	QVBoxLayout *top_layout;
 	bool not_pc;
+	qreal scale;
 protected:
 	void mousePressEvent(QMouseEvent *ev);
 signals:

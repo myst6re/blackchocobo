@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2010-2012 Chris Rizzitello <sithlord48@gmail.com>           //
+//    copyright 2010-2016 Chris Rizzitello <sithlord48@gmail.com>           //
 //                                                                          //
 //    This file is part of Black Chocobo.                                   //
 //                                                                          //
@@ -66,5 +66,6 @@ private slots:
 	void on_linePs3Key_editingFinished();
 	void on_linePs3Seed_editingFinished();
     void on_cbEditableCombos_clicked(bool checked);
+	void on_sbScale_valueChanged(double arg1);
 };
 #endif // OPTIONS_H

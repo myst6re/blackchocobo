@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012 -2014  Chris Rizzitello <sithlord48@gmail.com>         //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -16,14 +16,26 @@
 
 #ifndef TYPE_MATERIA_H
 #define TYPE_MATERIA_H
-#endif // TYPE_MATERIA_H
+
+#ifdef _MSC_VER
+#	define PACK(structure)			\
+		__pragma(pack(push, 1))		\
+		structure					\
+		__pragma(pack(pop))
+#elif defined(__MINGW32__)
+	#define PACK(structure) structure __attribute__ ((gcc_struct, __packed__))
+#else
+	#define PACK(structure) structure Q_PACKED
+#endif
 
 /*! \struct materia
  *  \brief materia format saved in materia list or on a character
  *
  * Total Size 4 Bytes 100% known!
  */
+PACK(
 struct materia{// sizeof 4
 quint8 id;      /**< materias id */
 quint8 ap[3];   /** Ap Storage is done as a 24bit int. */
-}__attribute__((__packed__));
+});
+#endif // TYPE_MATERIA_H

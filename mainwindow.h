@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2010-2013 Chris Rizzitello <sithlord48@gmail.com>           //
+//    copyright 2010-2016 Chris Rizzitello <sithlord48@gmail.com>           //
 //                                                                          //
 //    This file is part of Black Chocobo.                                   //
 //                                                                          //
@@ -74,6 +74,7 @@ protected:
 	void moveEvent(QMoveEvent *);
 private:
 	Ui::MainWindow *ui;
+	qreal scale;
 	bool skip_slot_mask;
 	bool _init; //set true then false after a file load.
 	bool load; // are we loading data? if so don't save it to the file.
@@ -209,6 +210,7 @@ private slots://try to keep these in the same order as the .cpp file
 	void cm_personalityChanged(int,quint8);
 	void cm_mated_toggled(int,bool);
 	void cm_pensChanged(int pen,int index);
+	void cm_ratingChanged(int,quint8);
 
 	//The Chocobo pens.
 
@@ -292,7 +294,7 @@ private slots://try to keep these in the same order as the .cpp file
 	void on_sb_b_love_tifa_valueChanged(int);
 	void on_sb_b_love_aeris_valueChanged(int);
 
-	void on_sb_turkschruch_valueChanged(int );
+	void on_sb_turkschurch_valueChanged(int );
 
 	void on_btn_remove_all_materia_clicked();
 	void on_btn_remove_all_stolen_clicked();
@@ -465,7 +467,6 @@ private slots://try to keep these in the same order as the .cpp file
 
 	void on_btn_add_all_materia_clicked();
 	void on_combo_compare_slot_currentIndexChanged(int index);
-	void on_btn_all_z_diffs_clicked();
 	void on_sb_steps_valueChanged(int );
 	void on_combo_s7_slums_currentIndexChanged(int index);
 	void on_cb_visible_buggy_toggled(bool checked);
@@ -521,5 +522,7 @@ private slots://try to keep these in the same order as the .cpp file
 	void on_btnSearchFlyers_clicked();
 	void on_btnSearchKeyItems_clicked();
 	void on_btnReplay_clicked();
+	void on_linePsxDesc_textChanged(const QString &arg1);
+
 };
 #endif // MAINWINDOW_H

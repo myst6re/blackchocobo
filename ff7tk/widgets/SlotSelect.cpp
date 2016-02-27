@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -15,8 +15,10 @@
 /****************************************************************************/
 #include "SlotSelect.h"
 
-SlotSelect::SlotSelect(QWidget *parent,FF7Save *data, bool showLoad):QDialog(parent)
+SlotSelect::SlotSelect(qreal Scale,FF7Save *data, bool showLoad,QWidget *parent):QDialog(parent)
 {
+	scale=Scale;
+	ff7 = data;
 	list_preview = new QScrollArea();
 	btnNew = new QPushButton (QIcon::fromTheme(QString("document-open"),QPixmap()),tr("Load Another File"));
 	connect (btnNew,SIGNAL(clicked()),this, SLOT(newFile()));
@@ -28,14 +30,13 @@ SlotSelect::SlotSelect(QWidget *parent,FF7Save *data, bool showLoad):QDialog(par
 	frm_preview->setContentsMargins(0,0,0,0);
 	preview_layout->setContentsMargins(0,0,0,0);
 	preview_layout->setSpacing(3);
-	ff7 = data;
 	for(int i=0;i<15;i++)
 	{
-		preview[i] = new SlotPreview(i);
+		preview[i] = new SlotPreview(i,scale);
 		preview_layout->addWidget(preview[i]);
 		setSlotPreview(i);
 	}
-	frm_preview->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+	//frm_preview->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Preferred);
 	list_preview->setWidget(frm_preview);
 	list_preview->setContentsMargins(0,0,0,0);
 	QVBoxLayout *dialog_layout = new QVBoxLayout;
@@ -45,8 +46,8 @@ SlotSelect::SlotSelect(QWidget *parent,FF7Save *data, bool showLoad):QDialog(par
 	dialog_layout->addWidget(btnNew);
 	this->showLoad(showLoad); //by defalut hide the load new save button
 	this->setLayout(dialog_layout);
-	this->setContentsMargins(0,0,0,0);
-	setFixedWidth(preview[1]->width()+list_preview->contentsMargins().left()+list_preview->contentsMargins().right()+list_preview->verticalScrollBar()->widthMM());
+	setFixedWidth(preview[1]->contentsRect().size().width() +contentsMargins().left()+contentsMargins().right()+ list_preview->verticalScrollBar()->widthMM()+14*scale);
+	this->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Preferred);
 }
 void SlotSelect::button_clicked(int s){this->done(s);}
 
@@ -101,7 +102,7 @@ void SlotSelect::paste_slot(int s)
 void SlotSelect::ReIntSlot(int s)
 {
 	preview[s]->~SlotPreview();
-	preview[s]= new SlotPreview(s);
+	preview[s]= new SlotPreview(s,scale);
 	preview_layout->insertWidget(s,preview[s]);
 	setSlotPreview(s);
 }
@@ -150,17 +151,8 @@ void SlotSelect::setSlotPreview(int s)
 	{// all other psx saves.
 		preview[s]->setMode(SlotPreview::MODE_PSXGAME);
 		preview[s]->setPsxIcon(ff7->slotIcon(s));
-		QByteArray desc;
-		QTextCodec *codec = QTextCodec::codecForName(QByteArray("Shift-JIS"));
-		desc = ff7->slotHeader(s).mid(4,64);
-		int desc_end;
-		if((desc_end = desc.indexOf('\x00')) != -1) {desc.truncate(desc_end);}
-
-		QString Slottext="";
-		if(codec == 0){}//codec fail (probably due missing codec qjpcodecs). TODO: A) make a legacy class to handle it. B) show a dialog that file can't be opened due a missing plugin required to decode. C) Leave it this way and show empty title.
-		else {Slottext=codec->toUnicode(desc);}
+		QString Slottext= ff7->psxDesc(s);
 		Slottext.prepend("      ");
-
 		if((ff7->psx_block_type(s)==FF7Save::BLOCK_DELETED_MAIN)||(ff7->psx_block_type(s)==FF7Save::BLOCK_DELETED_MIDLINK) || (ff7->psx_block_type(s)==FF7Save::BLOCK_DELETED_ENDLINK)){Slottext.append(tr("(Deleted)"));}
 		Slottext.append(tr("\n\t Game Uses %1 Save Block").arg(QString::number(ff7->psx_block_size(s))));
 		if(ff7->psx_block_next(s)!=0xFF){Slottext.append(tr("s; Next Data Chunk @ Slot:%1").arg(QString::number(ff7->psx_block_next(s)+1)));}

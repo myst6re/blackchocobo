@@ -1,5 +1,5 @@
 # /----------------------------------------------------------------------------/
-# //    copyright 2010-2015 Chris Rizzitello <sithlord48@gmail.com>           //
+# //    copyright 2010-2016 Chris Rizzitello <sithlord48@gmail.com>           //
 # //                                                                          //
 # //    This file is part of Black Chocobo.                                   //
 # //                                                                          //
@@ -129,15 +129,21 @@ TRANSLATIONS += \
 win32: {
 	#Set OpenSSL include & lib paths
 	#THIS MUST BE CHANGED WITH YOUR OPENSSL PATHS OR YOUR BUILD WILL FAIL!!!
-	INCLUDEPATH += C:/OpenSSL-Win32/include # Be Sure Path is openSSL
-	LIBS += -L"C:/OpenSSL-Win32/lib" -llibeay32 #Be sure to update path to installed openSSL
+	#DEFINES += OPENSSL=1							# Enable openSSL support
+	#INCLUDEPATH += C:/OpenSSL-Win32/include		# Be sure to change this to your openSSL include path
+	#LIBS += -L"C:/OpenSSL-Win32/lib" -llibeay32	# Be sure to update this to your openSSL lib path
 	RC_FILE = bchoco.rc #program icon for windows
 	TARGET = Black_Chocobo
+	#Prevent ms padding on packed structures on gcc compiler
+	contains(QMAKE_COMPILER, gcc) {
+	QMAKE_CXXFLAGS += -mno-ms-bitfields
+	}
 }
 
 #set up for mac os
 macx:{
-	LIBS += -lcrypto
+	#DEFINES += OPENSSL=1							# Enable openSSL support
+	#LIBS += -lcrypto								# Enable crypto lib
 	TARGET = Black_Chocobo
 	ICON = icon/bchoco_icon_osx.icns     #set program icon
 }
@@ -146,14 +152,29 @@ system (lrelease Black_Chocobo.pro)#release the .qm files
 
 #set up for unix os
 unix:!macx:!symbian:!android {
-	LIBS += -lcrypto
+	#remember to ship debian/menu and debian/blackchocobo.sharedmimeinfo
+
+	DEFINES += OPENSSL=1							# Enable openSSL support
+	LIBS += -lcrypto								# Enable crypto lib
+	
 	TARGET = blackchocobo
-	target.path = /usr/bin #place our binary in /usr/bin
-	INSTALLS +=target
+	target.path = /usr/bin
+	
+	langfiles.files= lang/*.qm
+	langfiles.path= /usr/share/blackchocobo/lang
+	
+	icon.files = icon/Black_Chocobo.png
+	icon.path = /usr/share/pixmaps
+	
+	desktop.files =Black_Chocobo.desktop
+	desktop.path = /usr/share/applications
+	
+	INSTALLS += target langfiles icon desktop
 }
 android:{
 	INCLUDEPATH += /home/chris/Downloads/openssl-1.0.1i/include
-	#LIBS += -L "" -lcrypto
+	#DEFINES += OPENSSL=1						# Enable openSSL support
+	#LIBS += -L "" -lcrypto						# Enable crypto lib
 	TARGET = blackchocobo
 	target.path = /usr/bin
 	INSTALLS +=target

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2013 -2014  Chris Rizzitello <sithlord48@gmail.com>         //
+//    copyright 2013 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -15,9 +15,10 @@
 /****************************************************************************/
 #include "AchievementEditor.h"
 
-AchievementEditor::AchievementEditor(QWidget *parent) :
+AchievementEditor::AchievementEditor(qreal Scale,QWidget *parent) :
 	QWidget(parent)
 {
+	scale = Scale;
 	initDisplay();
 	initConnect();
 }
@@ -32,7 +33,8 @@ void AchievementEditor::initDisconnect(void)
 void AchievementEditor::initDisplay(void)
 {
 	achievementList = new QListWidget;
-	achievementList->setIconSize(QSize(24,24));
+	achievementList->setIconSize(QSize(24*scale,24*scale));
+	//achievementList->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 
 	QGridLayout * layout = new QGridLayout;
 	for(int i=63;i>27;--i)
@@ -44,6 +46,7 @@ void AchievementEditor::initDisplay(void)
 	}
 	layout->addWidget(achievementList);
 	this->setLayout(layout);
+	this->setFixedWidth(achievementList->width());
 
 }
 bool AchievementEditor::openFile(QString fileName)

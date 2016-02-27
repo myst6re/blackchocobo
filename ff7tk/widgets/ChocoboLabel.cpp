@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2013 -2014  Chris Rizzitello <sithlord48@gmail.com>         //
+//    copyright 2013 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -21,12 +21,12 @@ bool ChocoboLabel::event(QEvent *ev)
 	if (ev->type()==QEvent::MouseButtonPress && isEnabled){emit(clicked());return true;}
 	else{return false;}
 }
-ChocoboLabel::ChocoboLabel(QWidget *parent,QString titleText,bool occupied) :
+ChocoboLabel::ChocoboLabel(qreal Scale,QString titleText,bool occupied,QWidget *parent) :
 	QWidget(parent)
 {
+	scale = Scale;
 	lblType = new QLabel("");
-	lblType->setFixedSize(48,48);
-	lblType->setScaledContents(true);
+	lblType->setFixedSize(48*scale,48*scale);
 
 	lblName = new QLabel("");
 	lblSex = new QLabel("");
@@ -34,34 +34,34 @@ ChocoboLabel::ChocoboLabel(QWidget *parent,QString titleText,bool occupied) :
 
 	chkOccupied = new QCheckBox();
 	chkOccupied->setText(titleText);
-	chkOccupied->setMaximumHeight(20);
+	chkOccupied->setMaximumHeight(20*scale);
 	chkOccupied->setProperty("HoverStyled",QVariant(true));
 
 	btnCopy = new QPushButton();
 	btnCopy->setFlat(true);
-	btnCopy->setFixedSize(20,20);
-	btnCopy->setIconSize(QSize(16,16));
+	btnCopy->setFixedSize(20*scale,20*scale);
+	btnCopy->setIconSize(QSize(16*scale,16*scale));
 	btnCopy->setToolTip(QString(tr("Copy")));
 	btnCopy->setProperty("HoverStyled",QVariant(true));
 	btnCopy->setIcon(QIcon::fromTheme(QString("edit-copy"),QPixmap(":/common/edit-copy")));
 
 	btnPaste = new QPushButton();
 	btnPaste->setFlat(true);
-	btnPaste->setFixedSize(20,20);
-	btnPaste->setIconSize(QSize(16,16));
+	btnPaste->setFixedSize(20*scale,20*scale);
+	btnPaste->setIconSize(QSize(16*scale,16*scale));
 	btnPaste->setToolTip(QString(tr("Paste")));
 	btnPaste->setProperty("HoverStyled",QVariant(true));
 	btnPaste->setIcon(QIcon::fromTheme(QString("edit-paste"),QPixmap(":/common/edit-paste")));
 
 	btnRemove = new QPushButton();
 	btnRemove->setFlat(true);
-	btnRemove->setFixedSize(20,20);
-	btnRemove->setIconSize(QSize(16,16));
+	btnRemove->setFixedSize(20*scale,20*scale);
+	btnRemove->setIconSize(QSize(16*scale,16*scale));
 	btnRemove->setToolTip(QString(tr("Remove")));
 	btnRemove->setProperty("HoverStyled",QVariant(true));
 	btnRemove->setIcon(QIcon::fromTheme(QString("edit-clear"),QPixmap(":/common/edit-clear")));
 
-	setFontSize(14);
+    setFontSize(14);
 	chkOccupied->setChecked(occupied);
 
 	QHBoxLayout *btnLayout = new QHBoxLayout;
@@ -123,11 +123,11 @@ void ChocoboLabel::setType(int type)
 {
 	switch(type)
 	{
-		case 0: lblType->setPixmap(QPixmap("://chocobo/yellow")); break;
-		case 1: lblType->setPixmap(QPixmap("://chocobo/green")); break;
-		case 2: lblType->setPixmap(QPixmap("://chocobo/blue")); break;
-		case 3: lblType->setPixmap(QPixmap("://chocobo/black")); break;
-		case 4: lblType->setPixmap(QPixmap("://chocobo/gold")); break;
+		case 0: lblType->setPixmap(QPixmap("://chocobo/yellow").scaled(lblType->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)); break;
+		case 1: lblType->setPixmap(QPixmap("://chocobo/green").scaled(lblType->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)); break;
+		case 2: lblType->setPixmap(QPixmap("://chocobo/blue").scaled(lblType->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)); break;
+		case 3: lblType->setPixmap(QPixmap("://chocobo/black").scaled(lblType->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)); break;
+		case 4: lblType->setPixmap(QPixmap("://chocobo/gold").scaled(lblType->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)); break;
 		default: lblType->setPixmap(QPixmap("")); break;
 	}
 }

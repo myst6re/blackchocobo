@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -37,7 +37,7 @@ public:
 	 */
 	enum Box {PHSALLOWED=1/**< 1*/,PHSVISIBLE=2/**< 2*/};
 
-	explicit PhsListWidget(QWidget *parent = 0);
+	explicit PhsListWidget(qreal Scale=1, QWidget * parent=0);
 
 signals:
 	/** \brief SIGNAL: The allowed box has changed its checked state
@@ -93,6 +93,7 @@ private:
 	void init_display();
 	void connectAll();
 	void disconnectAll();
+	qreal scale;
 };
 
 #endif // PHSMENULIST_H

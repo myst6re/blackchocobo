@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -15,15 +15,17 @@
 /****************************************************************************/
 
 #include "DoubleCheckBox.h"
-DoubleCheckBox::DoubleCheckBox(QWidget *parent) :
+DoubleCheckBox::DoubleCheckBox(qreal Scale,QWidget *parent) :
 	QWidget(parent)
 {
+	scale=Scale;
 	init_display();
 	init_connections();
 }
-DoubleCheckBox::DoubleCheckBox(const QString &text,QWidget *parent) :
+DoubleCheckBox::DoubleCheckBox(const QString &text,qreal Scale,QWidget *parent ) :
 	QWidget(parent)
 {
+	scale=Scale;
 	init_display();
 	init_connections();
 	setText(text);
@@ -33,8 +35,8 @@ void DoubleCheckBox::init_display()
 	cb_one = new QCheckBox;
 	cb_two = new QCheckBox;
 	label = new QLabel;
-	cb_one->setMaximumSize(22,22);
-	cb_two->setMaximumSize(22,22);
+	cb_one->setMaximumSize(22*scale,22*scale);
+	cb_two->setMaximumSize(22*scale,22*scale);
 	QHBoxLayout *boxLayout = new QHBoxLayout;
 	boxLayout->addWidget(cb_one);
 	boxLayout->addWidget(cb_two);

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -14,14 +14,15 @@
 //    GNU General Public License for more details.                          //
 /****************************************************************************/
 #include "SlotPreview.h"
-SlotPreview::SlotPreview(int index, QWidget *parent):QLabel(parent)
+SlotPreview::SlotPreview(int index,qreal Scale, QWidget *parent):QLabel(parent)
 {
-	Final = new QVBoxLayout();
+	scale=Scale;
+    Final = new QVBoxLayout();
 	Final->setContentsMargins(2,2,2,2);
 	setIndex(index);
 	setLayout(Final);
-	setFixedSize(581,135);
-	setStyleSheet("SlotPreview{border:3px solid;}");
+	setFixedSize(582*scale,135*scale);
+	setStyleSheet(QString("SlotPreview{border:%1px solid;}").arg(QString::number(3*scale)));
 	setCursor(Qt::PointingHandCursor);
 }
 
@@ -33,19 +34,19 @@ void SlotPreview::init_display(void)
 	btn_remove = new QPushButton(QIcon::fromTheme(QString("edit-clear"),QPixmap(":/common/edit-clear")),"",this);
 	btn_remove->setStyleSheet("QPushButton{border:1px solid;}");
 	btn_remove->setToolTip(tr("Clear Slot"));
-	btn_remove->setMaximumSize(22,22);
+	btn_remove->setMaximumSize(22*scale,22*scale);
 	btn_remove->setCursor(Qt::BitmapCursor);
 
 	btn_copy = new QPushButton(QIcon::fromTheme(QString("edit-copy"),QPixmap(":/common/edit-copy")),"",this);
 	btn_copy->setStyleSheet("QPushButton{border:1px solid;}");
 	btn_copy->setToolTip(tr("Copy Slot"));
-	btn_copy->setMaximumSize(22,22);
+	btn_copy->setMaximumSize(22*scale,22*scale);
 	btn_copy->setCursor(Qt::BitmapCursor);
 
 	btn_paste = new QPushButton(QIcon::fromTheme(QString("edit-paste"),QPixmap(":/common/edit-paste")),"",this);
 	btn_paste->setStyleSheet("QPushButton{border:1px solid;}");
 	btn_paste->setToolTip(tr("Paste Into Slot"));
-	btn_paste->setMaximumSize(22,22);
+	btn_paste->setMaximumSize(22*scale,22*scale);
 	btn_paste->setCursor(Qt::BitmapCursor);
 
 	btnLayout = new QHBoxLayout;
@@ -77,7 +78,7 @@ void SlotPreview::set_empty(void)
 	init_display();
 	btn_paste->setHidden(false);
 	lbl_Slot->setStyleSheet(QString("font: 75 14pt \"Verdana\";"));
-	QString style="font: 75 14pt \"Verdana\"; color:yellow;";
+	QString style=QString("font: 75 14pt \"Verdana\"; color:yellow;");
 	location=new QLabel(tr("-Empty-"));
 	location->setStyleSheet(style);
 	QVBoxLayout *empty_layout = new QVBoxLayout;
@@ -99,9 +100,8 @@ void SlotPreview::set_psx_game(void)
 	icon= new SaveIcon;
 	QString style="font-size: 10pt;";
 	party1 = new QLabel;
-	party1->setFixedSize(90,100);
-	party1->setScaledContents(1);
-	connect(icon,SIGNAL(nextIcon(QPixmap)),party1,SLOT(setPixmap(QPixmap)));
+	party1->setFixedSize(96*scale,96*scale);
+	connect(icon,SIGNAL(nextIcon(QPixmap)),this,SLOT(set_Party1(QPixmap)));
 	location = new QLabel;
 	location->setStyleSheet(style);
 	QHBoxLayout *layout = new QHBoxLayout;
@@ -119,19 +119,19 @@ void SlotPreview::set_psx_game(void)
 void SlotPreview::set_ff7_save(void)
 {
 	init_display();
-	lbl_Slot->setStyleSheet("background-color:rgba(0,0,0,0);font: 75 14pt \"Verdana\";color:white");
-	QString style="background-color:rbga(0,0,0,0);font: 75 14pt \"Verdana\"; color:white;";
+	lbl_Slot->setStyleSheet(QString("background-color:rgba(0,0,0,0);font: 75 14pt \"Verdana\";color:white"));
+	QString style=QString("background-color:rgba(0,0,0,0);font: 75 14pt \"Verdana\";color:white");
 
 	party1 = new QLabel;
-	party1->setFixedSize(84,96);
+	party1->setFixedSize(84*scale,96*scale);
 	party1->setStyleSheet(style);
 
 	party2 = new QLabel;
-	party2->setFixedSize(84,96);
+	party2->setFixedSize(84*scale,96*scale);
 	party2->setStyleSheet(style);
 
 	party3 = new QLabel;
-	party3->setFixedSize(84,96);
+	party3->setFixedSize(84*scale,96*scale);
 	party3->setStyleSheet(style);
 
 	lbl_gil = new QLabel;
@@ -195,9 +195,9 @@ void SlotPreview::set_ff7_save(void)
 
 void SlotPreview::setParty(QPixmap p1,QPixmap p2,QPixmap p3)
 {
-	this->set_Party1(p1);
-	this->set_Party2(p2);
-	this->set_Party3(p3);
+    this->set_Party1(p1.scaled(party1->width(),party1->height(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    this->set_Party2(p2.scaled(party2->width(),party2->height(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    this->set_Party3(p3.scaled(party3->width(),party3->height(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 }
 
 void SlotPreview::setParty(QString p1_style,QString p2_style,QString p3_style)
@@ -209,11 +209,11 @@ void SlotPreview::setParty(QString p1_style,QString p2_style,QString p3_style)
 
 void SlotPreview::setIndex(int index){this->setObjectName(QString::number(index));}
 int SlotPreview::index(void){return this->objectName().toInt();}
-void SlotPreview::set_Party1(QPixmap pix){party1->setPixmap(pix);}
+void SlotPreview::set_Party1(QPixmap pix){party1->setPixmap(pix.scaled(party1->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));}
 void SlotPreview::set_Party1(QString style){party1->setStyleSheet(style);}
-void SlotPreview::set_Party2(QPixmap pix){party2->setPixmap(pix);}
+void SlotPreview::set_Party2(QPixmap pix){party2->setPixmap(pix.scaled(party2->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));}
 void SlotPreview::set_Party2(QString style){party2->setStyleSheet(style);}
-void SlotPreview::set_Party3(QPixmap pix){party3->setPixmap(pix);}
+void SlotPreview::set_Party3(QPixmap pix){party3->setPixmap(pix.scaled(party3->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));}
 void SlotPreview::set_Party3(QString style){party3->setStyleSheet(style);}
 void SlotPreview::setName(QString Name){name->setText(Name);}
 void SlotPreview::setLevel(int lvl){lbl_level->setText(QString(tr("Level:%1")).arg(QString::number(lvl)));}
@@ -223,6 +223,6 @@ void SlotPreview::setTime(int hr,int min){lbl_time->setText(QString(tr("Time:%1:
 void SlotPreview::removed(void){emit btn_remove_clicked(index());}
 void SlotPreview::copy(void){emit btn_copy_clicked(index());}
 void SlotPreview::paste(void){emit btn_paste_clicked(index());}
-void SlotPreview::setPsxIcon(QByteArray icon_data,quint8 frames){icon->setAll(icon_data,frames);party1->setPixmap(icon->icon());}
-void SlotPreview::setPsxIcon(QList<QByteArray> icon_data){icon->setAll(icon_data);party1->setPixmap(icon->icon());}
+void SlotPreview::setPsxIcon(QByteArray icon_data,quint8 frames){icon->setAll(icon_data,frames);party1->setPixmap(icon->icon().scaled(party1->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));}
+void SlotPreview::setPsxIcon(QList<QByteArray> icon_data){icon->setAll(icon_data);party1->setPixmap(icon->icon().scaled(party1->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));}
 void SlotPreview::mousePressEvent(QMouseEvent *ev){if(ev->button() ==Qt::LeftButton){emit clicked(index());}}

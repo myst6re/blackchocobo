@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2013  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2013 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -35,7 +35,7 @@ class LocationViewer : public QWidget
 	Q_OBJECT
 public:
     enum filterMode {NAME,ITEM};
-	explicit LocationViewer(QWidget *parent = 0);
+	explicit LocationViewer(qreal Scale=1,QWidget *parent=0);
     void setFilterString(QString filter="",LocationViewer::filterMode mode=LocationViewer::NAME);
 signals:
 	void locationChanged(QString);
@@ -124,6 +124,7 @@ private:
 	bool caseSensitive;
 	bool autoUpdate;
 	bool _advancedMode;
+	qreal scale;
 };
 
 #endif // LOCATIONVIEWER_H

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012 -2014  Chris Rizzitello <sithlord48@gmail.com>         //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -24,6 +24,7 @@
 #include <QDateTime>
 #include <QVector>
 #include <QtXml/QDomDocument>
+#include <QTextCodec>
 //FF7tk Includes
 #include "FF7Save_Const.h" //All consts placed here
 #include "FF7Save_Types.h" //All Custom Types for this class here.
@@ -790,7 +791,7 @@ class FF7Save: public QObject{
 	bool setUnknown(int s,int z,QByteArray data);
 	quint16 steps(int s);
 	void setSteps(int s,int steps);
-	quint8 chruchProgress(int s);
+	quint8 churchProgress(int s);
 	void setChurchProgress(int s,int progress);
 	quint8 donProgress(int s);
 	void setDonProgress(int s,int progress);
@@ -946,6 +947,38 @@ class FF7Save: public QObject{
 
 	bool subMiniGameVictory(int s);
 	void setSubMiniGameVictory(int s,bool won);
+	/**	\brief Get Chocobo Bill's Rating of a chocobo.
+	 *
+	 * This is the rating that chocobo bill give to a chocobo it follows the same format as FF7Save::chocoboPen()
+	 * \param s slot number (0-14)
+	 * \param stable stable number (0-5)
+	 */
+	quint8 chocoboRating(int s,int stable);
+
+	/**	\brief Set Chocobo Bill's Rating of a chocobo.
+	 *
+	 * This is the rating that chocobo bill give to a chocobo it follows the same format as FF7Save::chocoboPen()
+	 * \param s slot number (0-14)
+	 * \param stable stable number 0-5
+	 * \param rating (0-8) 0:empty 1: wonderful 8:terrible
+	 */
+	void setChocoboRating(int s,int stable,int rating);
+	QList<quint8> chocoboRatings(int s);
+
+	/**	\brief Get Description Text for PSX Slot.
+	 *
+	 * This text is the text shown when you view the save slot in the memory manager on the playstation. It is also visible in many programs that work with psx memory cards.
+	 * \param s slot number (0-14)
+	 */
+	QString psxDesc(int s);
+
+	/**	\brief Set The Description Text for PSX Slot (text shows in memory card manager of playstation)
+	 *
+	 * This text is the text shown when you view the save slot in the memory manager on the playstation. It is also visible in many programs that work with psx memory cards.
+	 * \param newDesc your new text
+	 * \param s slot number (0-14)
+	 */
+	void setPsxDesc(QString newDesc, int s);
 
 	inline void setPs3Key(QByteArray key){PS3Key=key;}
 	inline void setPs3Seed(QByteArray seed){PS3Seed=seed;}
@@ -961,19 +994,21 @@ private:
 	quint8 * file_headerp;	//pointer to file header
 	quint8 * file_footerp;							//pointer to file footer
 	quint8 file_header_pc [0x0009];		// [0x0000] 0x06277371 this replace quint8 file_tag[9];
-	quint8 file_header_psx[0x0000];	// [0x0000] 0x06277371 this replace quint8 file_tag[9];
-	quint8 file_header_psv[0x0000];
+	//FF7tk Bug Fix #11
+	//quint8 file_header_psx[0x0000];	// [0x0000] 0x06277371 this replace quint8 file_tag[9];
+	//quint8 file_header_psv[0x0000];
 	quint8 file_header_psp[0x2080];
 	quint8 file_header_vgs[0x2040]; //header for vgs/mem ext format.
 	quint8 file_header_dex[0x2F40]; //header for gme (dex-drive format)
 	quint8 file_header_mc [0x2000];	// [0x0000] 0x06277371 this replace quint8 file_tag[9];
-	quint8 file_footer_pc [0x0000];	// [0x0000] 0x06277371
-	quint8 file_footer_psx[0x0000];	// [0x0000] 0x06277371
-	quint8 file_footer_psv[0x0000];
-	quint8 file_footer_vgs[0x0000];
-	quint8 file_footer_dex[0x0000];
-	quint8 file_footer_mc [0x0000];	// [0x0000] 0x06277371
-	quint8 file_footer_psp[0x0000];
+	//FF7tk Bug Fix #11
+	//quint8 file_footer_pc [0x0000];	// [0x0000] 0x06277371
+	//quint8 file_footer_psx[0x0000];	// [0x0000] 0x06277371
+	//quint8 file_footer_psv[0x0000];
+	//quint8 file_footer_vgs[0x0000];
+	//quint8 file_footer_dex[0x0000];
+	//quint8 file_footer_mc [0x0000];	// [0x0000] 0x06277371
+	//quint8 file_footer_psp[0x0000];
 	FF7SLOT buffer_slot;// hold a buffer slot
 	QString buffer_region; // hold the buffers region data.
 	QString SG_Region_String[15];

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -51,7 +51,7 @@ bool ItemList::eventFilter(QObject *obj, QEvent *ev)
              //the width() function returns inner size so it stops at scrollbar
                 if(mapFromGlobal(cursor().pos()).x()>viewport()->width()){return true;}
                 //make an ItemPreview, but give it A ToolTip Flags so it looks/acts as one
-                itemPreview = new ItemPreview(this,Qt::ToolTip);
+				itemPreview = new ItemPreview(Qt::ToolTip,scale);
                 itemPreview->setItem(Items.itemId(itemlist.at(row)));
                 itemPreview->setGeometry(QRect(cursor().pos(),itemPreview->size()));
                 itemPreview->show();
@@ -86,8 +86,9 @@ bool ItemList::eventFilter(QObject *obj, QEvent *ev)
     }
     else{return false;}
 }
-ItemList::ItemList(QWidget *parent) : QTableWidget(parent)
+ItemList::ItemList(qreal Scale,QWidget *parent) : QTableWidget(parent)
 {
+	scale = Scale;
     setObjectName("ItemList");
     installEventFilter(this);
     createdTooltip=false;
@@ -110,7 +111,7 @@ ItemList::ItemList(QWidget *parent) : QTableWidget(parent)
     verticalHeader()->hide();
     verticalScrollBar()->setToolTip("");//negate custom tooltip
     for(int i=0;i<320;i++){itemlist.append(FF7Item::EmptyItemData);}//initlize the data.
-    itemSelector->setFixedHeight(this->sizeHintForRow(0)+contentsMargins().top()+contentsMargins().bottom());
+	itemSelector->setFixedHeight(fontMetrics().height());
     setFixedWidth(itemSelector->frameGeometry().width()+ verticalScrollBar()->width() + contentsMargins().left() + contentsMargins().right()+6);
     itemSelector->close();
     createdSelector = false;
@@ -150,7 +151,7 @@ void ItemList::itemSelector_changed(quint16 item)
         setItem(sender()->objectName().toInt(),0,newItem);
         newItem = new QTableWidgetItem(tr("-------EMPTY--------"),0);
         setItem(sender()->objectName().toInt(),1,newItem);
-        setRowHeight(sender()->objectName().toInt(),22);
+		setRowHeight(sender()->objectName().toInt(),fontMetrics().height()+9);
         newItem = new QTableWidgetItem("",0);
         setItem(sender()->objectName().toInt(),2,newItem);
     }
@@ -235,10 +236,9 @@ void ItemList::updateItem(int row)
     if (itemlist.at(row) == FF7Item::EmptyItemData)
     {
         newItem = new QTableWidgetItem("",0);
-        setItem(row,0,newItem);
+		setItem(row,0,newItem);
         newItem = new QTableWidgetItem(tr("-------EMPTY--------"),0);
         setItem(row,1,newItem);
-        setRowHeight(row,22);
         newItem = new QTableWidgetItem("",0);
         setItem(row,2,newItem);
     }
@@ -248,7 +248,6 @@ void ItemList::updateItem(int row)
         setItem(row,0,newItem);
         newItem = new QTableWidgetItem(tr("-------BAD ID-------"),0);
         setItem(row,1,newItem);
-        setRowHeight(row,22);
         newItem = new QTableWidgetItem("",0);
         setItem(row,2,newItem);
     }
@@ -260,9 +259,9 @@ void ItemList::updateItem(int row)
         setItem(row,0,newItem);
         newItem = new QTableWidgetItem(Items.name(Items.itemId(itemlist.at(row))),0);
         setItem(row,1, newItem);
-        setRowHeight(row,22);
         newItem = new QTableWidgetItem(qty.setNum(Items.itemQty(itemlist.at(row))),0);
         setItem(row,2,newItem);
     }
+	setRowHeight(row,fontMetrics().height()+9);
 }
 void ItemList::setEditableItemCombo(bool editable){editableItemCombo=editable;}

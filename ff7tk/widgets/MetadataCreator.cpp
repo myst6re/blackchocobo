@@ -1,14 +1,14 @@
 /****************************************************************************/
-//    copyright 2012 Chris Rizzitello <sithlord48@gmail.com>           //
+//    copyright 2012 -2016  Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
-//    This file is part of FF7tk.                                   //
+//    This file is part of FF7tk.                                           //
 //                                                                          //
-//    FF7tk is free software: you can redistribute it and/or modify //
+//    FF7tk is free software: you can redistribute it and/or modify         //
 //    it under the terms of the GNU General Public License as published by  //
 //    the Free Software Foundation, either version 3 of the License, or     //
 //    (at your option) any later version.                                   //
 //                                                                          //
-//    FF7tk is distributed in the hope that it will be useful,      //
+//    FF7tk is distributed in the hope that it will be useful,              //
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of        //
 //   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          //
 //    GNU General Public License for more details.                          //
@@ -26,14 +26,14 @@ MetadataCreator::MetadataCreator(QWidget *parent,FF7Save *ff7save) :    QDialog(
 	initDisplay();
 	initConnections();
 	for(int i=0;i<15;i++){InFiles.append(QString(""));}
-	 ff7 = ff7save;
-	 buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-	 this->setWindowTitle(tr("Create Cloud Save Folder"));
-	 this->setFocus();// prevents lineOutPath from Having Focus and hiding its placeholder text.
+	ff7 = ff7save;
+	buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+	this->setWindowTitle(tr("Create Cloud Save Folder"));
+	this->setFocus();// prevents lineOutPath from Having Focus and hiding its placeholder text.
 }
 void MetadataCreator::initDisplay(void)
 {
-	this->setMinimumSize(458,438);
+	this->setMinimumSize(458*qApp->desktop()->logicalDpiX()/96,438*qApp->desktop()->logicalDpiY()/96);
 	lblOut= new QLabel(tr("Output Path:"));
 	lineOutPath = new QLineEdit;
 	lineOutPath->setPlaceholderText(tr("Folder To Write Files Into"));
@@ -141,7 +141,7 @@ void MetadataCreator::initDisplay(void)
 
 	lblSave09=new QLabel(tr("Save09"));
 	lineSave09= new QLineEdit;
-	lineSave09->setPlaceholderText(tr("Pressing Ok WIll Overwrite Any Metadata in the save path"));
+	lineSave09->setPlaceholderText(tr("Pressing Ok Will Overwrite Any Metadata in the save path"));
 	btnSave09= new QPushButton("...");
 
 	QHBoxLayout *savegroup09 = new QHBoxLayout;

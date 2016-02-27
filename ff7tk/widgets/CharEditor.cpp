@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2012  Chris Rizzitello <sithlord48@gmail.com>               //
+//    copyright 2012 - 2016  Chris Rizzitello <sithlord48@gmail.com>        //
 //                                                                          //
 //    This file is part of FF7tk                                            //
 //                                                                          //
@@ -14,9 +14,10 @@
 //    GNU General Public License for more details.                          //
 /****************************************************************************/
 #include "CharEditor.h"
-
-CharEditor::CharEditor(QWidget *parent) : QWidget(parent)
+//#include <QDebug>
+CharEditor::CharEditor(qreal Scale,QWidget *parent) : QWidget(parent)
 {
+	scale = Scale;
 	init_display();
 	init_connections();
 	//auto level and auto stat calc are enabled by default.
@@ -26,18 +27,22 @@ CharEditor::CharEditor(QWidget *parent) : QWidget(parent)
 	load=false;
 	editable=true;
 	advancedMode=false;
-	mslotsel =-1;
- }
+    mslotsel =-1;
+}
+
 void CharEditor::init_display()
 {
-	lbl_avatar = new QLabel;
-	lbl_avatar->setFixedSize(86,98);
+
+    lbl_avatar = new QLabel;
+	lbl_avatar->setFixedSize(86*scale,98*scale);
 	line_name = new QLineEdit;
 	line_name->setPlaceholderText(tr("Name"));
 	lbl_hp = new QLabel(tr("HP"));
 	lbl_mp = new QLabel(tr("MP"));
 	lbl_mp_slash = new QLabel("/");
 	lbl_hp_slash = new QLabel("/");
+	lbl_hp_max = new QLabel("");
+	lbl_mp_max = new QLabel("");
 	sb_level = new QSpinBox;
 	sb_level->setPrefix(tr("Level").append(": "));
 	sb_curMp = new QSpinBox;
@@ -48,14 +53,7 @@ void CharEditor::init_display()
 	sb_maxHp = new QSpinBox;
 	sb_maxHp->setToolTip(tr("value calculated ingame; edit BaseHp"));
 	sb_maxHp->setVisible(false);
-	lcdMaxHp = new QLCDNumber;
-	lcdMaxMp = new QLCDNumber;
-	lcdMaxMp->setSegmentStyle(QLCDNumber::Flat);
-	lcdMaxHp->setSegmentStyle(QLCDNumber::Flat);
-	lcdMaxHp->setDigitCount(5);
-	lcdMaxMp->setDigitCount(5);
-	lcdMaxHp->setMaximumHeight(24);
-	lcdMaxMp->setMaximumHeight(24);
+
 	sb_kills = new QSpinBox;
 	sb_kills->setPrefix(tr("Kills").append(": "));
 	cb_fury=new QCheckBox(tr("Fury"));
@@ -72,18 +70,18 @@ void CharEditor::init_display()
 	lbl_base_hp = new QLabel(tr("Base HP"));
 	lbl_base_hp_bonus = new QLabel;
 	sb_base_hp = new QSpinBox;
-	sb_base_hp->setFixedWidth(this->font().pointSize()*7);
+    sb_base_hp->setFixedWidth(fontMetrics().width(QChar('W'))*5);
 	lbl_base_mp = new QLabel(tr("Base MP"));
 	lbl_base_mp_bonus = new QLabel;
 	sb_base_mp = new QSpinBox;
-	sb_base_mp->setFixedWidth(this->font().pointSize()*7);
+    sb_base_mp->setFixedWidth(fontMetrics().width(QChar('W'))*5);
 
 	lbl_level_progress = new QLabel(tr("Level Progress"));
 	bar_tnl = new QProgressBar;
 	bar_tnl->setMaximum(61);//strange indeed..
 	bar_tnl->setTextVisible(false);
-	bar_tnl->setFixedHeight(10);
-	bar_tnl->setFixedWidth(61);
+	bar_tnl->setFixedHeight(10*scale);
+	bar_tnl->setFixedWidth(61*scale);
 	lbl_level_next = new QLabel(tr("Next"));
 	sb_total_exp = new QSpinBox;
 	sb_total_exp->setPrefix(tr("Exp: "));
@@ -93,7 +91,7 @@ void CharEditor::init_display()
 
 	lbl_limit_bar = new QLabel (tr("Limit Bar"));
 	slider_limit = new QSlider;
-	slider_limit->setMaximumHeight(20);
+	slider_limit->setMaximumHeight(20*scale);
 	slider_limit->setMaximum(255);
 	slider_limit->setOrientation(Qt::Horizontal);
 	lcd_limit_value = new QLCDNumber;
@@ -181,9 +179,9 @@ void CharEditor::init_display()
 	sb_uses_limit_1_1 = new QSpinBox;
 	sb_uses_limit_2_1 = new QSpinBox;
 	sb_uses_limit_3_1 = new QSpinBox;
-	sb_uses_limit_1_1->setFixedWidth(this->font().pointSize()*7);
-	sb_uses_limit_2_1->setFixedWidth(this->font().pointSize()*7);
-	sb_uses_limit_3_1->setFixedWidth(this->font().pointSize()*7);
+    sb_uses_limit_1_1->setFixedWidth(fontMetrics().width(QChar('W'))*5);
+    sb_uses_limit_2_1->setFixedWidth(fontMetrics().width(QChar('W'))*5);
+    sb_uses_limit_3_1->setFixedWidth(fontMetrics().width(QChar('W'))*5);
 	sb_uses_limit_1_1->setAlignment(Qt::AlignCenter);
 	sb_uses_limit_2_1->setAlignment(Qt::AlignCenter);
 	sb_uses_limit_3_1->setAlignment(Qt::AlignCenter);
@@ -194,9 +192,9 @@ void CharEditor::init_display()
 	lbl_1_1 = new QLabel(tr("1-1"));
 	lbl_2_1 = new QLabel(tr("2-1"));
 	lbl_3_1 = new QLabel(tr("3-1"));
-	lbl_1_1->setFixedWidth(this->font().pointSize()*3);
-	lbl_2_1->setFixedWidth(this->font().pointSize()*3);
-	lbl_3_1->setFixedWidth(this->font().pointSize()*3);
+    lbl_1_1->setFixedWidth(fontMetrics().width(QChar('W'))*3);
+    lbl_2_1->setFixedWidth(fontMetrics().width(QChar('W'))*3);
+    lbl_3_1->setFixedWidth(fontMetrics().width(QChar('W'))*3);
 	lbl_1_1->setAlignment(Qt::AlignHCenter);
 	lbl_2_1->setAlignment(Qt::AlignHCenter);
 	lbl_3_1->setAlignment(Qt::AlignHCenter);
@@ -233,7 +231,7 @@ void CharEditor::init_display()
 	lbl_limit_level = new QLabel(tr("Limit Level"));
 	sb_limit_level = new QSpinBox;
 
-	sb_limit_level->setFixedWidth(this->font().pointSize()*4);
+    sb_limit_level->setFixedWidth(fontMetrics().width(QChar('W'))*4);
 
 	QHBoxLayout *limit_level_layout = new QHBoxLayout;
 	limit_level_layout->setContentsMargins(0,0,0,0);
@@ -288,7 +286,7 @@ void CharEditor::init_display()
 	sb_uses_limit_3_1->setWrapping(true);
 
 	line_name->setMaxLength(11);
-	line_name->setMaximumWidth(this->font().pointSize()*12);
+    line_name->setMaximumWidth(fontMetrics().width(QChar('W'))*11);
 
 	QHBoxLayout * name_level_layout= new QHBoxLayout;
 	name_level_layout->addWidget(line_name);
@@ -300,8 +298,8 @@ void CharEditor::init_display()
 	hp_layout->addWidget(lbl_hp);
 	hp_layout->addWidget(sb_curHp);
 	hp_layout->addWidget(lbl_hp_slash);
+	hp_layout->addWidget(lbl_hp_max);
 	hp_layout->addWidget(sb_maxHp);
-	hp_layout->addWidget(lcdMaxHp);
 	QSpacerItem *hp_spacer1 = new QSpacerItem(20,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
 	hp_layout->addSpacerItem(hp_spacer1);
 	QSpacerItem *hp_spacer = new QSpacerItem(20,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -311,8 +309,8 @@ void CharEditor::init_display()
 	mp_layout->addWidget(lbl_mp);
 	mp_layout->addWidget(sb_curMp);
 	mp_layout->addWidget(lbl_mp_slash);
+	mp_layout->addWidget(lbl_mp_max);
 	mp_layout->addWidget(sb_maxMp);
-	mp_layout->addWidget(lcdMaxMp);
 	QSpacerItem *mp_spacer1 = new QSpacerItem(20,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
 	mp_layout->addSpacerItem(mp_spacer1);
 	QSpacerItem *mp_spacer = new QSpacerItem(20,0,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -478,7 +476,7 @@ void CharEditor::init_display()
 	QLabel *lbl_0x34= new QLabel(QString(tr("0x34")));
 	lcd_0x34 = new QLCDNumber;
 	lcd_0x34->setDigitCount(2);
-	lcd_0x34->setFixedSize(32,20);
+	lcd_0x34->setFixedSize(32*scale,20*scale);
 	lcd_0x34->setHexMode();
 	lcd_0x34->setSegmentStyle(QLCDNumber::Flat);
 	QVBoxLayout *_0x34_layout = new QVBoxLayout;
@@ -490,7 +488,7 @@ void CharEditor::init_display()
 	QLabel *lbl_0x35= new QLabel(QString(tr("0x35")));
 	lcd_0x35 = new QLCDNumber;
 	lcd_0x35->setDigitCount(2);
-	lcd_0x35->setFixedSize(32,20);
+	lcd_0x35->setFixedSize(32*scale,20*scale);
 	lcd_0x35->setHexMode();
 	lcd_0x35->setSegmentStyle(QLCDNumber::Flat);
 	QVBoxLayout *_0x35_layout = new QVBoxLayout;
@@ -502,7 +500,7 @@ void CharEditor::init_display()
 	QLabel *lbl_0x36= new QLabel(QString(tr("0x36")));
 	lcd_0x36 = new QLCDNumber;
 	lcd_0x36->setDigitCount(2);
-	lcd_0x36->setFixedSize(32,20);
+	lcd_0x36->setFixedSize(32*scale,20*scale);
 	lcd_0x36->setHexMode();
 	lcd_0x36->setSegmentStyle(QLCDNumber::Flat);
 	QVBoxLayout *_0x36_layout = new QVBoxLayout;
@@ -514,7 +512,7 @@ void CharEditor::init_display()
 	QLabel *lbl_0x37= new QLabel(QString(tr("0x37")));
 	lcd_0x37 = new QLCDNumber;
 	lcd_0x37->setDigitCount(2);
-	lcd_0x37->setFixedSize(32,20);
+	lcd_0x37->setFixedSize(32*scale,20*scale);
 	lcd_0x37->setHexMode();
 
 	lcd_0x37->setSegmentStyle(QLCDNumber::Flat);
@@ -569,14 +567,14 @@ void CharEditor::init_display()
 
 
 	armor_selection = new QComboBox;
-	for(int i=256;i<288;i++){armor_selection->addItem(QPixmap::fromImage(Items.image(i)),Items.name(i));}
+    for(int i=256;i<288;i++){armor_selection->addItem(QPixmap::fromImage(Items.image(i)),Items.name(i));}
 
 	accessory_selection = new QComboBox;
 
 	for(int i=288;i<320;i++){accessory_selection->addItem(QPixmap::fromImage(Items.image(i)),Items.name(i));}
 	accessory_selection->addItem(QPixmap::fromImage(Items.image(288)),tr("-NONE-"));
-	materia_edit  = new MateriaEditor(this);
-	materia_edit->setStarsSize(32);
+	materia_edit  = new MateriaEditor(scale,this);
+	materia_edit->setStarsSize(32*scale);
 
 	elemental_effects = new QListWidget();
 	QHBoxLayout *elemental = new QHBoxLayout();
@@ -626,8 +624,8 @@ void CharEditor::init_display()
 	// you can use FF7Item::Style_m_grow_slot() to get the style of that slot
 
 	weapon_slot_1 = new QPushButton();
-	weapon_slot_1->setFixedSize(32,32);
-	weapon_slot_1->setIconSize(QSize(32,32));
+	weapon_slot_1->setFixedSize(32*scale,32*scale);
+	weapon_slot_1->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_1->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_1->setHidden(1);
 
@@ -636,17 +634,17 @@ void CharEditor::init_display()
 	weapon_slot_1_layout->addWidget(weapon_slot_1);
 
 	weapon_frm_1 = new QFrame;
-	weapon_frm_1->setFixedSize(32,32);
+	weapon_frm_1->setFixedSize(32*scale,32*scale);
 	weapon_frm_1->setFrameShape(QFrame::NoFrame);
 	weapon_frm_1->setFrameShadow(QFrame::Plain);
 	weapon_frm_1->setLayout(weapon_slot_1_layout);
 
 	weapon_m_link_1= new QLabel();
-	weapon_m_link_1->setFixedSize(12,16);
+	weapon_m_link_1->setFixedSize(12*scale,16*scale);
 
 	weapon_slot_2 = new QPushButton();
-	weapon_slot_2->setFixedSize(32,32);
-	weapon_slot_2->setIconSize(QSize(32,32));
+	weapon_slot_2->setFixedSize(32*scale,32*scale);
+	weapon_slot_2->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_2->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_2->setHidden(1);
 
@@ -655,7 +653,7 @@ void CharEditor::init_display()
 	weapon_slot_2_layout->addWidget(weapon_slot_2);
 
 	weapon_frm_2 = new QFrame;
-	weapon_frm_2->setFixedSize(32,32);
+	weapon_frm_2->setFixedSize(32*scale,32*scale);
 	weapon_frm_2->setFrameShape(QFrame::NoFrame);
 	weapon_frm_2->setFrameShadow(QFrame::Plain);
 	weapon_frm_2->setLayout(weapon_slot_2_layout);
@@ -668,10 +666,10 @@ void CharEditor::init_display()
 	weapon_slots_1_and_2->setSpacing(0);
 
 	weapon_slot_3 = new QPushButton();
-	weapon_slot_3->setFixedSize(32,32);
+	weapon_slot_3->setFixedSize(32*scale,32*scale);
 	weapon_slot_3->setFlat(true);
 	weapon_slot_3->setAutoFillBackground(true);
-	weapon_slot_3->setIconSize(QSize(32,32));
+	weapon_slot_3->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_3->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_3->setHidden(1);
 
@@ -680,20 +678,20 @@ void CharEditor::init_display()
 	weapon_slot_3_layout->addWidget(weapon_slot_3);
 
 	weapon_frm_3 = new QFrame;
-	weapon_frm_3->setFixedSize(32,32);
+	weapon_frm_3->setFixedSize(32*scale,32*scale);
 	weapon_frm_3->setFrameShape(QFrame::NoFrame);
 	weapon_frm_3->setFrameShadow(QFrame::Plain);
 	weapon_frm_3->setLayout(weapon_slot_3_layout);
 
 	weapon_m_link_2 = new QLabel();
-	weapon_m_link_2->setFixedSize(12,16);
+	weapon_m_link_2->setFixedSize(12*scale,16*scale);
 
 	weapon_slot_4 = new QPushButton();
-	weapon_slot_4->setFixedSize(32,32);
+	weapon_slot_4->setFixedSize(32*scale,32*scale);
 	weapon_slot_1->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_4->setFlat(true);
 	weapon_slot_4->setAutoFillBackground(true);
-	weapon_slot_4->setIconSize(QSize(32,32));
+	weapon_slot_4->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_4->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_4->setHidden(1);
 
@@ -702,7 +700,7 @@ void CharEditor::init_display()
 	weapon_slot_4_layout->addWidget(weapon_slot_4);
 
 	weapon_frm_4 = new QFrame;
-	weapon_frm_4->setFixedSize(32,32);
+	weapon_frm_4->setFixedSize(32*scale,32*scale);
 	weapon_frm_4->setFrameShape(QFrame::NoFrame);
 	weapon_frm_4->setFrameShadow(QFrame::Plain);
 	weapon_frm_4->setLayout(weapon_slot_4_layout);
@@ -715,10 +713,10 @@ void CharEditor::init_display()
 	weapon_slots_3_and_4->setSpacing(0);
 
 	weapon_slot_5 = new QPushButton();
-	weapon_slot_5->setFixedSize(32,32);
+	weapon_slot_5->setFixedSize(32*scale,32*scale);
 	weapon_slot_5->setFlat(true);
 	weapon_slot_5->setAutoFillBackground(true);
-	weapon_slot_5->setIconSize(QSize(32,32));
+	weapon_slot_5->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_5->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_5->setHidden(1);
 
@@ -727,19 +725,19 @@ void CharEditor::init_display()
 	weapon_slot_5_layout->addWidget(weapon_slot_5);
 
 	weapon_frm_5 = new QFrame;
-	weapon_frm_5->setFixedSize(32,32);
+	weapon_frm_5->setFixedSize(32*scale,32*scale);
 	weapon_frm_5->setFrameShape(QFrame::NoFrame);
 	weapon_frm_5->setFrameShadow(QFrame::Plain);
 	weapon_frm_5->setLayout(weapon_slot_5_layout);
 
 	weapon_m_link_3 = new QLabel();
-	weapon_m_link_3->setFixedSize(12,16);
+	weapon_m_link_3->setFixedSize(12*scale,16*scale);
 
 	weapon_slot_6 = new QPushButton();
-	weapon_slot_6->setFixedSize(32,32);
+	weapon_slot_6->setFixedSize(32*scale,32*scale);
 	weapon_slot_6->setFlat(true);
 	weapon_slot_6->setAutoFillBackground(true);
-	weapon_slot_6->setIconSize(QSize(32,32));
+	weapon_slot_6->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_6->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_6->setHidden(1);
 
@@ -748,7 +746,7 @@ void CharEditor::init_display()
 	weapon_slot_6_layout->addWidget(weapon_slot_6);
 
 	weapon_frm_6 = new QFrame;
-	weapon_frm_6->setFixedSize(32,32);
+	weapon_frm_6->setFixedSize(32*scale,32*scale);
 	weapon_frm_6->setFrameShape(QFrame::NoFrame);
 	weapon_frm_6->setFrameShadow(QFrame::Plain);
 	weapon_frm_6->setLayout(weapon_slot_6_layout);
@@ -761,10 +759,10 @@ void CharEditor::init_display()
 	weapon_slots_5_and_6->setSpacing(0);
 
 	weapon_slot_7 = new QPushButton();
-	weapon_slot_7->setFixedSize(32,32);
+	weapon_slot_7->setFixedSize(32*scale,32*scale);
 	weapon_slot_7->setFlat(true);
 	weapon_slot_7->setAutoFillBackground(true);
-	weapon_slot_7->setIconSize(QSize(32,32));
+	weapon_slot_7->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_7->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_7->setHidden(1);
 
@@ -773,19 +771,19 @@ void CharEditor::init_display()
 	weapon_slot_7_layout->addWidget(weapon_slot_7);
 
 	weapon_frm_7 = new QFrame;
-	weapon_frm_7->setFixedSize(32,32);
+	weapon_frm_7->setFixedSize(32*scale,32*scale);
 	weapon_frm_7->setFrameShape(QFrame::NoFrame);
 	weapon_frm_7->setFrameShadow(QFrame::Plain);
 	weapon_frm_7->setLayout(weapon_slot_7_layout);
 
 	weapon_m_link_4 = new QLabel();
-	weapon_m_link_4->setFixedSize(12,16);
+	weapon_m_link_4->setFixedSize(12*scale,16*scale);
 
 	weapon_slot_8 = new QPushButton();
-	weapon_slot_8->setFixedSize(32,32);
+	weapon_slot_8->setFixedSize(32*scale,32*scale);
 	weapon_slot_8->setFlat(true);
 	weapon_slot_8->setAutoFillBackground(true);
-	weapon_slot_8->setIconSize(QSize(32,32));
+	weapon_slot_8->setIconSize(QSize(32*scale,32*scale));
 	weapon_slot_8->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	weapon_slot_8->setHidden(1);
 
@@ -794,7 +792,7 @@ void CharEditor::init_display()
 	weapon_slot_8_layout->addWidget(weapon_slot_8);
 
 	weapon_frm_8 = new QFrame;
-	weapon_frm_8->setFixedSize(32,32);
+	weapon_frm_8->setFixedSize(32*scale,32*scale);
 	weapon_frm_8->setFrameShape(QFrame::NoFrame);
 	weapon_frm_8->setFrameShadow(QFrame::Plain);
 	weapon_frm_8->setLayout(weapon_slot_8_layout);
@@ -838,8 +836,8 @@ void CharEditor::init_display()
 	// you can use FF7Item::Style_m_grow_slot() to get the style of that slot
 
 	armor_slot_1 = new QPushButton();
-	armor_slot_1->setFixedSize(32,32);
-	armor_slot_1->setIconSize(QSize(32,32));
+	armor_slot_1->setFixedSize(32*scale,32*scale);
+	armor_slot_1->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_1->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_1->setHidden(1);
 
@@ -848,17 +846,17 @@ void CharEditor::init_display()
 	armor_slot_1_layout->addWidget(armor_slot_1);
 
 	armor_frm_1 = new QFrame;
-	armor_frm_1->setFixedSize(32,32);
+	armor_frm_1->setFixedSize(32*scale,32*scale);
 	armor_frm_1->setFrameShape(QFrame::NoFrame);
 	armor_frm_1->setFrameShadow(QFrame::Plain);
 	armor_frm_1->setLayout(armor_slot_1_layout);
 
 	armor_m_link_1= new QLabel();
-	armor_m_link_1->setFixedSize(12,16);
+	armor_m_link_1->setFixedSize(12*scale,16*scale);
 
 	armor_slot_2 = new QPushButton();
-	armor_slot_2->setFixedSize(32,32);
-	armor_slot_2->setIconSize(QSize(32,32));
+	armor_slot_2->setFixedSize(32*scale,32*scale);
+	armor_slot_2->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_2->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_2->setHidden(1);
 
@@ -867,7 +865,7 @@ void CharEditor::init_display()
 	armor_slot_2_layout->addWidget(armor_slot_2);
 
 	armor_frm_2 = new QFrame;
-	armor_frm_2->setFixedSize(32,32);
+	armor_frm_2->setFixedSize(32*scale,32*scale);
 	armor_frm_2->setFrameShape(QFrame::NoFrame);
 	armor_frm_2->setFrameShadow(QFrame::Plain);
 	armor_frm_2->setLayout(armor_slot_2_layout);
@@ -880,10 +878,10 @@ void CharEditor::init_display()
 	armor_slots_1_and_2->setSpacing(0);
 
 	armor_slot_3 = new QPushButton();
-	armor_slot_3->setFixedSize(32,32);
+	armor_slot_3->setFixedSize(32*scale,32*scale);
 	armor_slot_3->setFlat(true);
 	armor_slot_3->setAutoFillBackground(true);
-	armor_slot_3->setIconSize(QSize(32,32));
+	armor_slot_3->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_3->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_3->setHidden(1);
 
@@ -892,21 +890,21 @@ void CharEditor::init_display()
 	armor_slot_3_layout->addWidget(armor_slot_3);
 
 	armor_frm_3 = new QFrame;
-	armor_frm_3->setFixedSize(32,32);
+	armor_frm_3->setFixedSize(32*scale,32*scale);
 	armor_frm_3->setFrameShape(QFrame::NoFrame);
 	armor_frm_3->setFrameShadow(QFrame::Plain);
 	armor_frm_3->setLayout(armor_slot_3_layout);
 
 	armor_m_link_2 = new QLabel();
-	armor_m_link_2->setFixedSize(12,16);
+	armor_m_link_2->setFixedSize(12*scale,16*scale);
 	armor_m_link_2->setScaledContents(1);
 
 	armor_slot_4 = new QPushButton();
-	armor_slot_4->setFixedSize(32,32);
+	armor_slot_4->setFixedSize(32*scale,32*scale);
 	armor_slot_1->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_4->setFlat(true);
 	armor_slot_4->setAutoFillBackground(true);
-	armor_slot_4->setIconSize(QSize(32,32));
+	armor_slot_4->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_4->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_4->setHidden(1);
 
@@ -915,7 +913,7 @@ void CharEditor::init_display()
 	armor_slot_4_layout->addWidget(armor_slot_4);
 
 	armor_frm_4 = new QFrame;
-	armor_frm_4->setFixedSize(32,32);
+	armor_frm_4->setFixedSize(32*scale,32*scale);
 	armor_frm_4->setFrameShape(QFrame::NoFrame);
 	armor_frm_4->setFrameShadow(QFrame::Plain);
 	armor_frm_4->setLayout(armor_slot_4_layout);
@@ -928,10 +926,10 @@ void CharEditor::init_display()
 	armor_slots_3_and_4->setSpacing(0);
 
 	armor_slot_5 = new QPushButton();
-	armor_slot_5->setFixedSize(32,32);
+	armor_slot_5->setFixedSize(32*scale,32*scale);
 	armor_slot_5->setFlat(true);
 	armor_slot_5->setAutoFillBackground(true);
-	armor_slot_5->setIconSize(QSize(32,32));
+	armor_slot_5->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_5->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_5->setHidden(1);
 
@@ -940,20 +938,20 @@ void CharEditor::init_display()
 	armor_slot_5_layout->addWidget(armor_slot_5);
 
 	armor_frm_5 = new QFrame;
-	armor_frm_5->setFixedSize(32,32);
+	armor_frm_5->setFixedSize(32*scale,32*scale);
 	armor_frm_5->setFrameShape(QFrame::NoFrame);
 	armor_frm_5->setFrameShadow(QFrame::Plain);
 	armor_frm_5->setLayout(armor_slot_5_layout);
 
 	armor_m_link_3 = new QLabel();
-	armor_m_link_3->setFixedSize(12,16);
+	armor_m_link_3->setFixedSize(12*scale,16*scale);
 	armor_m_link_3->setScaledContents(1);
 
 	armor_slot_6 = new QPushButton();
-	armor_slot_6->setFixedSize(32,32);
+	armor_slot_6->setFixedSize(32*scale,32*scale);
 	armor_slot_6->setFlat(true);
 	armor_slot_6->setAutoFillBackground(true);
-	armor_slot_6->setIconSize(QSize(32,32));
+	armor_slot_6->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_6->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_6->setHidden(1);
 
@@ -962,7 +960,7 @@ void CharEditor::init_display()
 	armor_slot_6_layout->addWidget(armor_slot_6);
 
 	armor_frm_6 = new QFrame;
-	armor_frm_6->setFixedSize(32,32);
+	armor_frm_6->setFixedSize(32*scale,32*scale);
 	armor_frm_6->setFrameShape(QFrame::NoFrame);
 	armor_frm_6->setFrameShadow(QFrame::Plain);
 	armor_frm_6->setLayout(armor_slot_6_layout);
@@ -975,10 +973,10 @@ void CharEditor::init_display()
 	armor_slots_5_and_6->setSpacing(0);
 
 	armor_slot_7 = new QPushButton();
-	armor_slot_7->setFixedSize(32,32);
+	armor_slot_7->setFixedSize(32*scale,32*scale);
 	armor_slot_7->setFlat(true);
 	armor_slot_7->setAutoFillBackground(true);
-	armor_slot_7->setIconSize(QSize(32,32));
+	armor_slot_7->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_7->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_7->setHidden(1);
 
@@ -987,20 +985,20 @@ void CharEditor::init_display()
 	armor_slot_7_layout->addWidget(armor_slot_7);
 
 	armor_frm_7 = new QFrame;
-	armor_frm_7->setFixedSize(32,32);
+	armor_frm_7->setFixedSize(32*scale,32*scale);
 	armor_frm_7->setFrameShape(QFrame::NoFrame);
 	armor_frm_7->setFrameShadow(QFrame::Plain);
 	armor_frm_7->setLayout(armor_slot_7_layout);
 
 	armor_m_link_4 = new QLabel();
-	armor_m_link_4->setFixedSize(12,16);
+	armor_m_link_4->setFixedSize(12*scale,16*scale);
 	armor_m_link_4->setScaledContents(1);
 
 	armor_slot_8 = new QPushButton();
-	armor_slot_8->setFixedSize(32,32);
+	armor_slot_8->setFixedSize(32*scale,32*scale);
 	armor_slot_8->setFlat(true);
 	armor_slot_8->setAutoFillBackground(true);
-	armor_slot_8->setIconSize(QSize(32,32));
+	armor_slot_8->setIconSize(QSize(32*scale,32*scale));
 	armor_slot_8->setStyleSheet(Items.styleMateriaSlotNoGrowth());
 	armor_slot_8->setHidden(1);
 
@@ -1009,7 +1007,7 @@ void CharEditor::init_display()
 	armor_slot_8_layout->addWidget(armor_slot_8);
 
 	armor_frm_8 = new QFrame;
-	armor_frm_8->setFixedSize(32,32);
+	armor_frm_8->setFixedSize(32*scale,32*scale);
 	armor_frm_8->setFrameShape(QFrame::NoFrame);
 	armor_frm_8->setFrameShadow(QFrame::Plain);
 	armor_frm_8->setLayout(armor_slot_8_layout);
@@ -1296,15 +1294,15 @@ void CharEditor::setChar(FF7CHAR Chardata,QString Processed_Name)
 	data = Chardata;
 	_name=Processed_Name;
 	//more here like setting the gui stuff.
-	lbl_avatar->setPixmap(Chars.pixmap(data.id));
+    lbl_avatar->setPixmap(Chars.pixmap(data.id).scaled(lbl_avatar->width(),lbl_avatar->height(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
 	line_name->setText(_name);
 	sb_level->setValue(data.level);
 	sb_curMp->setValue(data.curMP);
 	sb_curHp->setValue(data.curHP);
 	sb_maxHp->setValue(data.maxHP);
-	lcdMaxHp->display(data.maxHP);
+	lbl_hp_max->setText(QString(" %1").arg(QString::number(data.maxHP)));
 	sb_maxMp->setValue(data.maxMP);
-	lcdMaxMp->display(data.maxMP);
+	lbl_mp_max->setText(QString(" %1").arg(QString::number(data.maxMP)));
 	sb_kills->setValue(data.kills);
 	combo_id->setCurrentIndex(data.id);
 	if(data.flags[0]==FF7Char::Fury){cb_fury->setChecked(Qt::Checked);}else{cb_fury->setChecked(Qt::Unchecked);}
@@ -1853,8 +1851,8 @@ void CharEditor::setAdvancedMode(bool new_advancedMode)
 	combo_id->setVisible(advancedMode);
 	sb_maxHp->setVisible(advancedMode);
 	sb_maxMp->setVisible(advancedMode);
-	lcdMaxHp->setVisible(!advancedMode);
-	lcdMaxMp->setVisible(!advancedMode);
+	lbl_hp_max->setVisible(!advancedMode);
+	lbl_mp_max->setVisible(!advancedMode);
 	//if viewing cait/vincent/y.cloud or sephiroth hid the checkbox for simple id changing.
 	if(data.id ==FF7Char::CaitSith || data.id ==FF7Char::Vincent ||data.id ==FF7Char::YoungCloud || data.id ==FF7Char::Sephiroth ){cb_idChanger->setHidden(advancedMode);}
 }
@@ -2073,12 +2071,12 @@ void CharEditor::calc_stats(void)
 					vit_bonus +=Materias.statVIT(data.materias[i].id);
 					spi_bonus +=Materias.statSPI(data.materias[i].id);
 					//Show in Percentage.
-					if(data.materias[i].id == 0x00){mp_bonus +=(10*level);}                                                 else{mp_bonus+=Materias.statMP(data.materias[i].id);}
-					if(data.materias[i].id == 0x01){hp_bonus += (10*level);}                                                 else{hp_bonus+=Materias.statHP(data.materias[i].id);}
+                    if(data.materias[i].id == 0x00){mp_bonus +=(10*level);}                             else{mp_bonus+=Materias.statMP(data.materias[i].id);}
+                    if(data.materias[i].id == 0x01){hp_bonus += (10*level);}                            else{hp_bonus+=Materias.statHP(data.materias[i].id);}
 					//show exact numbers
 					if(data.materias[i].id == 0x02){dex_bonus += data.dexterity * (0.01*(level*10));}   else{dex_bonus +=Materias.statDEX(data.materias[i].id);}
-					if(data.materias[i].id ==0x03){ mag_bonus += data.magic * (0.01*(level*10));}        else{mag_bonus +=Materias.statMAG(data.materias[i].id);}
-					if(data.materias[i].id ==0x04){ lck_bonus += data.luck * (0.01*(level*10));}              else{lck_bonus +=Materias.statLCK(data.materias[i].id);}
+                    if(data.materias[i].id ==0x03){ mag_bonus += data.magic * (0.01*(level*10));}       else{mag_bonus +=Materias.statMAG(data.materias[i].id);}
+                    if(data.materias[i].id ==0x04){ lck_bonus += data.luck * (0.01*(level*10));}        else{lck_bonus +=Materias.statLCK(data.materias[i].id);}
 				 }// end of add case.
 			}
 		}
@@ -2126,9 +2124,10 @@ void CharEditor::calc_stats(void)
 	else{lbl_base_mp_bonus->setText(QString(""));}
 
 	sb_maxHp->setValue(data.baseHP + (data.baseHP * (hp_bonus*.01)));
-	lcdMaxHp->display(sb_maxHp->value());
+	lbl_hp_max->setText(QString(" %1").arg(QString::number(sb_maxHp->value())));
 	sb_maxMp->setValue(data.baseMP + (data.baseMP *(mp_bonus *.01)));
-	lcdMaxMp->display(sb_maxMp->value());
+	lbl_mp_max->setText(QString(" %1").arg(QString::number(sb_maxMp->value())));
+
 }
 
 void CharEditor::level_up(int pre_level)
@@ -2237,8 +2236,8 @@ void CharEditor::elemental_info(void)
 						show=true; y+=elemental_effects->sizeHintForRow(0);
 				}
 			 }//end of for Loop
-			elemental_effects->setFixedHeight(y);
-			elemental_box->setFixedSize(205,y+elemental_box->contentsMargins().top()+elemental_box->contentsMargins().bottom());
+            elemental_effects->setFixedHeight(y);
+			elemental_box->setFixedSize(205*scale,y +elemental_box->contentsMargins().top()+elemental_box->contentsMargins().bottom());
 		}//end of else.
 	}//end of other loop.
    elemental_box->setVisible(show);
@@ -2310,8 +2309,8 @@ void CharEditor::status_info(void)
 					show=true; y+=status_effects->sizeHintForRow(0);
 				}
 			}//end of for Loop
-			status_effects->setFixedHeight(y);
-			status_box->setFixedSize(205,y + status_box->contentsMargins().top()+ status_box->contentsMargins().bottom());
+            status_effects->setFixedHeight(y);
+			status_box->setFixedSize(205*scale,y + status_box->contentsMargins().top()+ status_box->contentsMargins().bottom());
 		}//end of else.
 	 }//end of loop
 	status_box->setVisible(show);
@@ -2365,37 +2364,37 @@ void CharEditor::update_materia_slots()
 
 	 //fill the slots.
 
-	 if(data.materias[0].id!=FF7Materia::EmptyId){weapon_slot_1->setIcon(Materias.icon(data.materias[0].id));}else{weapon_slot_1->setIcon(QIcon(QString("")));}
+	 if(data.materias[0].id!=FF7Materia::EmptyId){weapon_slot_1->setIcon(QIcon(Materias.pixmap(data.materias[0].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_1->setIcon(QIcon(QString("")));}
 	 if(data.materias[0].id!=FF7Materia::EmptyId){weapon_slot_1->setToolTip(Materias.name(data.materias[0].id));}else{weapon_slot_1->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[1].id!=FF7Materia::EmptyId){weapon_slot_2->setIcon(Materias.icon(data.materias[1].id));}else{weapon_slot_2->setIcon(QIcon(QString("")));}
+	 if(data.materias[1].id!=FF7Materia::EmptyId){weapon_slot_2->setIcon(QIcon(Materias.pixmap(data.materias[1].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_2->setIcon(QIcon(QString("")));}
 	 if(data.materias[1].id!=FF7Materia::EmptyId){weapon_slot_2->setToolTip(Materias.name(data.materias[1].id));}else{weapon_slot_2->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[2].id!=FF7Materia::EmptyId){weapon_slot_3->setIcon(Materias.icon(data.materias[2].id));}else{weapon_slot_3->setIcon(QIcon(QString("")));}
+	 if(data.materias[2].id!=FF7Materia::EmptyId){weapon_slot_3->setIcon(QIcon(Materias.pixmap(data.materias[2].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_3->setIcon(QIcon(QString("")));}
 	 if(data.materias[2].id!=FF7Materia::EmptyId){weapon_slot_3->setToolTip(Materias.name(data.materias[2].id));}else{weapon_slot_3->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[3].id!=FF7Materia::EmptyId){weapon_slot_4->setIcon(Materias.icon(data.materias[3].id));}else{weapon_slot_4->setIcon(QIcon(QString("")));}
+	 if(data.materias[3].id!=FF7Materia::EmptyId){weapon_slot_4->setIcon(QIcon(Materias.pixmap(data.materias[3].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_4->setIcon(QIcon(QString("")));}
 	 if(data.materias[3].id!=FF7Materia::EmptyId){weapon_slot_4->setToolTip(Materias.name(data.materias[3].id));}else{weapon_slot_4->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[4].id!=FF7Materia::EmptyId){weapon_slot_5->setIcon(Materias.icon(data.materias[4].id));}else{weapon_slot_5->setIcon(QIcon(QString("")));}
+	 if(data.materias[4].id!=FF7Materia::EmptyId){weapon_slot_5->setIcon(QIcon(Materias.pixmap(data.materias[4].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_5->setIcon(QIcon(QString("")));}
 	 if(data.materias[4].id!=FF7Materia::EmptyId){weapon_slot_5->setToolTip(Materias.name(data.materias[4].id));}else{weapon_slot_5->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[5].id!=FF7Materia::EmptyId){weapon_slot_6->setIcon(Materias.icon(data.materias[5].id));}else{weapon_slot_6->setIcon(QIcon(QString("")));}
+	 if(data.materias[5].id!=FF7Materia::EmptyId){weapon_slot_6->setIcon(QIcon(Materias.pixmap(data.materias[5].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_6->setIcon(QIcon(QString("")));}
 	 if(data.materias[5].id!=FF7Materia::EmptyId){weapon_slot_6->setToolTip(Materias.name(data.materias[5].id));}else{weapon_slot_6->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[6].id!=FF7Materia::EmptyId){weapon_slot_7->setIcon(Materias.icon(data.materias[6].id));}else{weapon_slot_7->setIcon(QIcon(QString("")));}
+	 if(data.materias[6].id!=FF7Materia::EmptyId){weapon_slot_7->setIcon(QIcon(Materias.pixmap(data.materias[6].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_7->setIcon(QIcon(QString("")));}
 	 if(data.materias[6].id!=FF7Materia::EmptyId){weapon_slot_7->setToolTip(Materias.name(data.materias[6].id));}else{weapon_slot_7->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[7].id!=FF7Materia::EmptyId){weapon_slot_8->setIcon(Materias.icon(data.materias[7].id));}else{weapon_slot_8->setIcon(QIcon(QString("")));}
+	 if(data.materias[7].id!=FF7Materia::EmptyId){weapon_slot_8->setIcon(QIcon(Materias.pixmap(data.materias[7].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{weapon_slot_8->setIcon(QIcon(QString("")));}
 	 if(data.materias[7].id!=FF7Materia::EmptyId){weapon_slot_8->setToolTip(Materias.name(data.materias[7].id));}else{weapon_slot_8->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[8].id!=FF7Materia::EmptyId){armor_slot_1->setIcon(Materias.icon(data.materias[8].id));}else{armor_slot_1->setIcon(QIcon(QString("")));}
+	 if(data.materias[8].id!=FF7Materia::EmptyId){armor_slot_1->setIcon(QIcon(Materias.pixmap(data.materias[8].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_1->setIcon(QIcon(QString("")));}
 	 if(data.materias[8].id!=FF7Materia::EmptyId){armor_slot_1->setToolTip(Materias.name(data.materias[8].id));}else{armor_slot_1->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[9].id!=FF7Materia::EmptyId){armor_slot_2->setIcon(Materias.icon(data.materias[9].id));}else{armor_slot_2->setIcon(QIcon(QString("")));}
+	 if(data.materias[9].id!=FF7Materia::EmptyId){armor_slot_2->setIcon(QIcon(Materias.pixmap(data.materias[9].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_2->setIcon(QIcon(QString("")));}
 	 if(data.materias[9].id!=FF7Materia::EmptyId){armor_slot_2->setToolTip(Materias.name(data.materias[9].id));}else{armor_slot_2->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[10].id!=FF7Materia::EmptyId){armor_slot_3->setIcon(Materias.icon(data.materias[10].id));}else{armor_slot_3->setIcon(QIcon(QString("")));}
+	 if(data.materias[10].id!=FF7Materia::EmptyId){armor_slot_3->setIcon(QIcon(Materias.pixmap(data.materias[10].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_3->setIcon(QIcon(QString("")));}
 	 if(data.materias[10].id!=FF7Materia::EmptyId){armor_slot_3->setToolTip(Materias.name(data.materias[10].id));}else{armor_slot_3->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[11].id!=FF7Materia::EmptyId){armor_slot_4->setIcon(Materias.icon(data.materias[11].id));}else{armor_slot_4->setIcon(QIcon(QString("")));}
+	 if(data.materias[11].id!=FF7Materia::EmptyId){armor_slot_4->setIcon(QIcon(Materias.pixmap(data.materias[11].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_4->setIcon(QIcon(QString("")));}
 	 if(data.materias[11].id!=FF7Materia::EmptyId){armor_slot_4->setToolTip(Materias.name(data.materias[11].id));}else{armor_slot_4->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[12].id!=FF7Materia::EmptyId){armor_slot_5->setIcon(Materias.icon(data.materias[12].id));}else{armor_slot_5->setIcon(QIcon(QString("")));}
+	 if(data.materias[12].id!=FF7Materia::EmptyId){armor_slot_5->setIcon(QIcon(Materias.pixmap(data.materias[12].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_5->setIcon(QIcon(QString("")));}
 	 if(data.materias[12].id!=FF7Materia::EmptyId){armor_slot_5->setToolTip(Materias.name(data.materias[12].id));}else{armor_slot_5->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[13].id!=FF7Materia::EmptyId){armor_slot_6->setIcon(Materias.icon(data.materias[13].id));}else{armor_slot_6->setIcon(QIcon(QString("")));}
+	 if(data.materias[13].id!=FF7Materia::EmptyId){armor_slot_6->setIcon(QIcon(Materias.pixmap(data.materias[13].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_6->setIcon(QIcon(QString("")));}
 	 if(data.materias[13].id!=FF7Materia::EmptyId){armor_slot_6->setToolTip(Materias.name(data.materias[13].id));}else{armor_slot_6->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[14].id!=FF7Materia::EmptyId){armor_slot_7->setIcon(Materias.icon(data.materias[14].id));}else{armor_slot_7->setIcon(QIcon(QString("")));}
+	 if(data.materias[14].id!=FF7Materia::EmptyId){armor_slot_7->setIcon(QIcon(Materias.pixmap(data.materias[14].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_7->setIcon(QIcon(QString("")));}
 	 if(data.materias[14].id!=FF7Materia::EmptyId){armor_slot_7->setToolTip(Materias.name(data.materias[14].id));}else{armor_slot_7->setToolTip(QString(tr("-Empty-")));}
-	 if(data.materias[15].id!=FF7Materia::EmptyId){armor_slot_8->setIcon(Materias.icon(data.materias[15].id));}else{armor_slot_8->setIcon(QIcon(QString("")));}
+	 if(data.materias[15].id!=FF7Materia::EmptyId){armor_slot_8->setIcon(QIcon(Materias.pixmap(data.materias[15].id).scaled(24*scale,24*scale,Qt::KeepAspectRatio,Qt::SmoothTransformation)));}else{armor_slot_8->setIcon(QIcon(QString("")));}
 	 if(data.materias[15].id!=FF7Materia::EmptyId){armor_slot_8->setToolTip(Materias.name(data.materias[15].id));}else{armor_slot_8->setToolTip(QString(tr("-Empty-")));}
 
 	 //set up weapon
@@ -2555,8 +2554,8 @@ void CharEditor::MaxStats()
 	else
 	{
 		sb_level->setValue(99);
-		sb_base_hp->setValue(32767);
-		sb_base_mp->setValue(32767);
+		sb_base_hp->setValue(10000); //set to 10k to prevent overflow
+		sb_base_mp->setValue(10000); //set to 10k to prevent overflow 
 		sb_str_bonus->setValue(255);
 		sb_dex_bonus->setValue(255);
 		sb_spi_bonus->setValue(255);

@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2010-2013 Chris Rizzitello <sithlord48@gmail.com>           //
+//    copyright 2010-2016 Chris Rizzitello <sithlord48@gmail.com>           //
 //                                                                          //
 //    This file is part of Black Chocobo.                                   //
 //                                                                          //
@@ -29,7 +29,7 @@ errbox::errbox(QWidget *parent,FF7Save *ff7data,int slot) :QDialog(parent)
 
 	lblIcon = new QLabel;
 	lblIcon->setMinimumSize(64,64);
-	lblIcon->setScaledContents(true);
+	lblIcon->setMaximumSize(128,128);
 
 	btnPrev = new QPushButton(QIcon::fromTheme("go-previous",QIcon(":/icon/prev")),"");
 	btnPrev->setShortcut(QKeySequence::Back);
@@ -77,18 +77,12 @@ errbox::errbox(QWidget *parent,FF7Save *ff7data,int slot) :QDialog(parent)
 	int nextslot;
 
 	save_icon.setAll(ff7->slotIcon(s));
-	lblIcon->setPixmap(save_icon.icon());
-	connect(&save_icon, SIGNAL(nextIcon(QPixmap)), lblIcon, SLOT(setPixmap(QPixmap)));
-	// Get the games desc string
-	QByteArray desc;
-	QTextCodec *codec = QTextCodec::codecForName(QByteArray("Shift-JIS"));
-	desc = ff7->slotHeader(s).mid(4,64);
-	int index;
-	if((index = desc.indexOf('\x00')) != -1) {desc.truncate(index);}
-	//assume NOT PC SAVE.
+	lblIcon->setPixmap(save_icon.icon().scaled(lblIcon->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+	connect(&save_icon, SIGNAL(nextIcon(QPixmap)), this, SLOT(setIcon(QPixmap)));
 
+	//assume NOT PC SAVE.
 	QString Slottext= QString(tr("Slot:%1\n").arg(QString::number(s+1),2,QChar('0')));
-	if(ff7->psx_block_type(s) != FF7Save::BLOCK_MIDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_ENDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_DELETED_MIDLINK && ff7->psx_block_type(s) !=FF7Save::BLOCK_DELETED_ENDLINK){Slottext.append(codec->toUnicode(desc));}
+	if(ff7->psx_block_type(s) != FF7Save::BLOCK_MIDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_ENDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_DELETED_MIDLINK && ff7->psx_block_type(s) !=FF7Save::BLOCK_DELETED_ENDLINK){Slottext.append(ff7->psxDesc(s));}
 
 	else if((ff7->psx_block_type(s)==FF7Save::BLOCK_MIDLINK)||(ff7->psx_block_type(s)==FF7Save::BLOCK_DELETED_MIDLINK)){Slottext.append(tr("\n Mid-Linked Block "));}
 
@@ -98,9 +92,9 @@ errbox::errbox(QWidget *parent,FF7Save *ff7data,int slot) :QDialog(parent)
 	numslots = ff7->psx_block_size(s);
 	nextslot= ff7->psx_block_next(s)+1;
 	if(ff7->psx_block_type(s) != FF7Save::BLOCK_MIDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_ENDLINK && ff7->psx_block_type(s) != FF7Save::BLOCK_DELETED_MIDLINK && ff7->psx_block_type(s) !=FF7Save::BLOCK_DELETED_ENDLINK){Slottext.append(tr("\n Game Uses %1 Save Block").arg(QString::number(numslots)));}
-	if(numslots !=1)
+	if(numslots >1)
 	{
-			if(ff7->psx_block_next(s)!=0xFF)
+			if(ff7->type()!="PSX" && ff7->type()!="PSV" && ff7->psx_block_next(s)!=0xFF )
 			{
 				if(ff7->psx_block_type(s) != FF7Save::BLOCK_MIDLINK){Slottext.append(tr("s\n   Next Data Chunk @ Slot:%1").arg(QString::number(nextslot)));}
 				else{Slottext.append(tr("Next Data Chunk @ Slot:%1").arg(QString::number(nextslot)));}
@@ -161,3 +155,8 @@ void errbox::setSingleSlot(bool single)
 	}
 }
 bool errbox::isSingleSlot(){return singleSlot;}
+
+void errbox::setIcon(QPixmap pix)
+{
+	lblIcon->setPixmap(pix.scaled(lblIcon->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation));
+}

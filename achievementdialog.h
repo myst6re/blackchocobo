@@ -1,5 +1,5 @@
 /****************************************************************************/
-//    copyright 2013 Chris Rizzitello <sithlord48@gmail.com>                //
+//    copyright 2013 - 2016 Chris Rizzitello <sithlord48@gmail.com>         //
 //                                                                          //
 //    This file is part of Black Chocobo.                                   //
 //                                                                          //
@@ -32,7 +32,7 @@ class achievementDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit achievementDialog(QWidget *parent = 0,QString FileName="");
+	explicit achievementDialog(qreal Scale=1,QString FileName="",QWidget *parent=0);
 
 signals:
 
